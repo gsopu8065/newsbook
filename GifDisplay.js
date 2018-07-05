@@ -69,8 +69,12 @@ export default class GifDisplay extends React.Component {
                     </View>
                 </TouchableHighlight>
             </View>
-            <View style={{height: '100%', display: (newsGifs.length === 0 || this.state.plusClicked )? 'flex' :'none'}}> <GifBrowser addGifComment={this.addGifComment} changeHeight={this.changeHeight}/> </View>
-            <View style={{height: '100%', display: (newsGifs.length > 0 && !this.state.plusClicked )? 'flex' :'none'}}> <GifList gifs={newsGifs}/> </View>
+            <View style={{height: '100%', display: (newsGifs.length === 0 || this.state.plusClicked )? 'flex' :'none'}}>
+                <GifBrowser addGifComment={this.addGifComment} changeHeight={this.changeHeight}/>
+            </View>
+            <View style={{height: '100%', display: (newsGifs.length > 0 && !this.state.plusClicked )? 'flex' :'none'}}>
+                <GifList gifs={newsGifs}/>
+            </View>
         </View>
     }
 
@@ -100,7 +104,6 @@ const styles = StyleSheet.create({
     text:{
         color: 'black',
         fontSize: 15,
-        fontWeight: "500",
-        fontFamily: 'Helvetica',
+        fontWeight: "500"
     }
 });

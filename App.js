@@ -14,11 +14,16 @@ export default class App extends React.Component {
     }
 
     componentDidMount(){
-        this.getNews();
+        this.getNews(1);
         this.getNewsGifs();
     }
 
-    getNews = async()=> {
+    updateNews = () =>{
+        this.getNews((this.state.newsResponse.length/20)+1);
+    };
+
+    getNews = async(page)=> {
+
         let newsSource = [ 'abc-news',
             'associated-press',
             'bloomberg',
@@ -48,11 +53,12 @@ export default class App extends React.Component {
             'wired' ];
 
         try{
-            let response = await fetch("https://newsapi.org/v2/top-headlines?sources="+newsSource.join(',')+"&apiKey=839f0f8daf4d4272974b591d388a3374&pageSize=100");
+            let response = await fetch("https://newsapi.org/v2/top-headlines?sources="+newsSource.join(',')+"&apiKey=839f0f8daf4d4272974b591d388a3374&page="+page);
             let news = await response.json();
+            let updatedNews =  this.state.newsResponse.concat(news.articles);
             this.setState({
                 isLoading: false,
-                newsResponse: news.articles
+                newsResponse: updatedNews
             });
         } catch (e) {
             console.log(e);
@@ -85,6 +91,6 @@ export default class App extends React.Component {
             )
         }
 
-        return (<News filteredNews={filteredNews} gifs={this.state.newsGifs} updateGif={this.updateGif}/>);
+        return (<News filteredNews={filteredNews} gifs={this.state.newsGifs} updateGif={this.updateGif} updateNews={this.updateNews}/>);
     }
 }

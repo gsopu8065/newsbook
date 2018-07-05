@@ -45,6 +45,10 @@ export default class News extends React.Component {
                     index={this.state.currentIndex}
                     onIndexChanged={(index) => {
                 this.setState({currentIndex: index});
+                if(index+2 === this.props.filteredNews.length){
+                    this.props.updateNews();
+                }
+
             }}>
                 {this.props.filteredNews.map((eachNews, index) => {
                     return (<View style={styles.slide} key={eachNews.title}>
@@ -114,9 +118,8 @@ const styles = StyleSheet.create({
     },
     text: {
         color: 'black',
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: "900",
-        fontFamily: 'Helvetica',
         margin: 5
     },
     absolute: {
