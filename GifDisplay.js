@@ -27,16 +27,23 @@ export default class GifDisplay extends React.Component {
             }),
         });
         this.props.updateGif();
-        this.setState({plusClicked: false});
+        this.setState({plusClicked: false,gifHeight: "50%"});
     };
 
     changeHeight = (height) =>{
         this.setState({gifHeight: height});
+        if(height === "80%"){
+            //set swipable false
+            this.props.setSwipable(false);
+        }
+        else {
+            //set swipable true
+            this.props.setSwipable(true);
+        }
     };
 
     render(){
         const newsGifs = this.props.newsGifs || [];
-
         return <View style={{height: this.state.gifHeight, display: this.props.display? 'flex' :'none'}} >
             <View style={{height: '8%', display: (newsGifs.length > 0 )? 'flex' :'none'}}>
                 <TouchableHighlight style={{display: this.state.plusClicked? 'none' :'flex'}}>
@@ -104,6 +111,6 @@ const styles = StyleSheet.create({
     text:{
         color: 'black',
         fontSize: 15,
-        fontWeight: "500"
+        fontWeight: "900"
     }
 });

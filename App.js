@@ -10,17 +10,16 @@ export default class App extends React.Component {
             isLoading: true,
             newsResponse: [],
             newsGifs : []
-        }
+        };
+        this.newsPage = 1;
     }
 
     componentDidMount(){
-        this.getNews(1);
+        this.getNews();
         this.getNewsGifs();
     }
 
-    updateNews = () =>{
-        this.getNews((this.state.newsResponse.length/20)+1);
-    };
+    updateNews = () => this.getNews();
 
     getNews = async(page)=> {
 
@@ -53,13 +52,19 @@ export default class App extends React.Component {
             'wired' ];
 
         try{
-            let response = await fetch("https://newsapi.org/v2/top-headlines?sources="+newsSource.join(',')+"&apiKey=839f0f8daf4d4272974b591d388a3374&page="+page);
+            let response = await fetch("https://newsapi.org/v2/top-headlines?sources="+newsSource.join(',')+"&apiKey=839f0f8daf4d4272974b591d388a3374&page="+this.newsPage);
             let news = await response.json();
-            let updatedNews =  this.state.newsResponse.concat(news.articles);
+            console.log(news.articles);
+            let f1 = news.articles.filter((e,index) => news.articles.findIndex(a => a.title === e.title) === index);
+            let f2 = f1.filter((e,index) => f1.findIndex(a => a.urlToImage === e.urlToImage) === index);
+            let filterNews = f2.filter(e => this.state.newsResponse.findIndex(a => a.title === e.title || a.urlToImage === e.urlToImage) === -1);
+            console.log(filterNews);
+            let updatedNews =  this.state.newsResponse.concat(filterNews);
             this.setState({
                 isLoading: false,
                 newsResponse: updatedNews
             });
+            this.newsPage++;
         } catch (e) {
             console.log(e);
         }
@@ -81,7 +86,7 @@ export default class App extends React.Component {
 
     render() {
 
-        let filteredNews = this.state.newsResponse.filter((eachNews) => (eachNews.urlToImage != null));
+        let filteredNews= this.state.newsResponse.filter(eachNews => eachNews.urlToImage && eachNews.urlToImage.length !== 0);
 
         if(this.state.isLoading){
             return(

@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, Text, View, ImageBackground, TouchableHighlight, WebView} from 'react-native';
+import {StyleSheet, Text, View, ImageBackground, TouchableHighlight, WebView, Platform, ActivityIndicator} from 'react-native';
 import Swiper from 'react-native-swiper';
 import GifDisplay from './GifDisplay.js';
 import { Icon } from 'react-native-elements';
@@ -10,24 +10,47 @@ export default class News extends React.Component {
     constructor(props) {
         super(props);
         this.gifDisplay = React.createRef();
+        this.swiperRef = React.createRef();
         this.state = {
             currentIndex: 0,
-            linkClicked: false
+            linkClicked: false,
+            swipable: true
         }
     }
 
     onLinkPress = ()=>{
-        this.setState({linkClicked: true})
+        this.setState({linkClicked: true, swipable: false})
     };
 
     onSwipedUp = (state)=>{
-        if(this.gifDisplay.current != null)
-         this.gifDisplay.current.changeHeight("80%");
+        if(this.gifDisplay.current != null) {
+            this.gifDisplay.current.changeHeight("80%");
+            if(this.swiperRef.current != null) {
+                this.setState({swipable: false});
+            }
+        }
     };
 
     onSwipedDown = (state)=>{
-        if(this.gifDisplay.current != null)
+        if(this.gifDisplay.current != null) {
             this.gifDisplay.current.changeHeight("50%");
+            if(this.swiperRef.current != null) {
+                this.setState({swipable: true});
+            }
+        }
+    };
+
+    setSwipable = (flag) => this.setState({swipable: flag});
+
+    ActivityIndicatorLoadingView = () => {
+
+        return (
+            <ActivityIndicator
+                color='#009688'
+                size='large'
+                style={styles.ActivityIndicatorStyle}
+            />
+        );
     };
 
     render() {
@@ -43,6 +66,8 @@ export default class News extends React.Component {
         return (<View style={{height: '100%'}}>
             <Swiper style={styles.wrapper} loop={false} showsPagination={false}
                     index={this.state.currentIndex}
+                    ref={this.swiperRef}
+                    scrollEnabled={this.state.swipable}
                     onIndexChanged={(index) => {
                 this.setState({currentIndex: index});
                 if(index+2 === this.props.filteredNews.length){
@@ -74,9 +99,9 @@ export default class News extends React.Component {
                     </View>)
                 })}
             </Swiper>
-            <GifDisplay updateGif={this.props.updateGif} ref={this.gifDisplay} newsGifs={newsGifs} news={this.props.filteredNews[this.state.currentIndex]} display={!this.state.linkClicked}/>
+            <GifDisplay setSwipable={this.setSwipable} updateGif={this.props.updateGif} ref={this.gifDisplay} newsGifs={newsGifs} news={this.props.filteredNews[this.state.currentIndex]} display={!this.state.linkClicked}/>
             <View style={{display: (this.state.linkClicked)? 'flex' :'none',height:'80%'}}>
-                <TouchableHighlight onPress={() => {this.setState({linkClicked: false})}}>
+                <TouchableHighlight onPress={() => {this.setState({linkClicked: false, swipable: true})}}>
                     <View style={styles.navBar}>
                         <View style={styles.leftContainer}>
                             <Text style={[styles.text, {textAlign: 'left'}]}>{'< Back'}</Text>
@@ -87,17 +112,11 @@ export default class News extends React.Component {
                     </View>
                 </TouchableHighlight>
                 <WebView
-                    onLoadStart={()=>{
-                        console.log("started")
-                    }}
-                    onLoadEnd={()=>{
-                        console.log("ended")
-                    }}
-                    onError={()=>{
-                        console.log("error")
-                    }}
                     source={{uri: newsUrl}}
-                    style={{marginTop: 10}}
+                    style={styles.WebViewStyle}
+                    javaScriptEnabled={true}
+                    renderLoading={this.ActivityIndicatorLoadingView}
+                    startInLoadingState={true}
                 />
             </View>
         </View>);
@@ -118,7 +137,7 @@ const styles = StyleSheet.create({
     },
     text: {
         color: 'black',
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: "900",
         margin: 5
     },
@@ -152,5 +171,20 @@ const styles = StyleSheet.create({
         right: 10,
         justifyContent: 'flex-end',
         alignItems: 'center'
+    },
+    WebViewStyle: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        flex:1,
+        marginTop: (Platform.OS) === 'ios' ? 20 : 0
+    },
+    ActivityIndicatorStyle:{
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        alignItems: 'center',
+        justifyContent: 'center'
     }
 });
